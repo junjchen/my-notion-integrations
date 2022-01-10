@@ -48,18 +48,5 @@ const copyTodosFromPage = async (page) => {
     }));
 };
 
-getLastPage().then(copyTodosFromPage).then(createPageForToday);
-
-// getLastPage().then((lastPage) => {
-//   console.log(lastPage);
-//   // if (lastPage) {
-//   //   createPageForToday(() => [
-//   //     createTodoBlock("todo1"),
-//   //     createTodoBlock("todo2"),
-//   //     createTodoBlock("todo3"),
-//   //     createTodoBlock("todo4"),
-//   //   ]);
-//   // } else {
-//   //   createPageForToday();
-//   // }
-// });
+module.exports = () =>
+  getLastPage().then(copyTodosFromPage).then(createPageForToday);

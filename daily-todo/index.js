@@ -1,9 +1,11 @@
 const { Client } = require("@notionhq/client");
 const getRandomEmoji = require("../random-emojis");
+const isWorkday = require("./is-workday");
 const WORKLOG_LIST_DATABASE_ID = "a336f7bad4184447b3a36827aa1e4728";
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
 
 const createPageForToday = (todoBlocks) => {
+  console.log("creating new a page");
   notion.pages.create({
     parent: { database_id: WORKLOG_LIST_DATABASE_ID },
     properties: {
@@ -24,6 +26,7 @@ const createPageForToday = (todoBlocks) => {
 };
 
 const getLastPage = async () => {
+  console.log("getting todos from the last page");
   const resp = await notion.databases.query({
     database_id: WORKLOG_LIST_DATABASE_ID,
     sorts: [{ property: "Created", direction: "descending" }],
@@ -34,6 +37,7 @@ const getLastPage = async () => {
 
 const copyTodosFromPage = async (page) => {
   if (!page) return [];
+  console.log("copying todos from page");
   const resp = await notion.blocks.children.list({
     block_id: page.id,
     page_size: 100,
@@ -48,5 +52,10 @@ const copyTodosFromPage = async (page) => {
     }));
 };
 
-module.exports = () =>
-  getLastPage().then(copyTodosFromPage).then(createPageForToday);
+module.exports = () => {
+  if (!isWorkday()) {
+    console.log("skipping weekend");
+    return;
+  }
+  return getLastPage().then(copyTodosFromPage).then(createPageForToday);
+};
